@@ -6,11 +6,15 @@
     <title>Document</title>
 </head>
 <body>
+    <input type="text" id="ip" placeholder="IP Address" /> <input type="text" id="name" placeholder="Name" /> <button id="createMapping">Create Mapping</button>
     <div id="btns"></div>
     <div id="logs"></div>
     <script>
         let container = document.getElementById('logs');
         let btns = document.getElementById('btns');
+
+        let mappings = localStorage.getItem('mappings') || "{}";
+        mappings = JSON.parse(mappings);
 
         let outputData = {
 
@@ -46,7 +50,12 @@
                                 for(const [key, value] of Object.entries(outputData)){
                                     let details = document.createElement('details');
                                     let summary = document.createElement('summary');
-                                    summary.innerHTML = key;
+                                    if(mappings[key] == undefined){
+                                        summary.innerHTML = key;
+                                    } else {
+                                        summary.innerHTML = key + " (" + mappings[key] + ")";
+                                    }
+                                    
                                     details.appendChild(summary);
                                     value.forEach(element => {
                                         let p = document.createElement('p');
@@ -60,6 +69,17 @@
                     btns.appendChild(a);
                 });
             });
+
+        document.getElementById('createMapping').addEventListener('click', event => {
+            let ip = document.getElementById('ip').value;
+            let name = document.getElementById('name').value;
+            if(mappings[ip] == undefined){
+                mappings[ip] = name;
+            } else {
+                mappings[ip] = name;
+            }
+            localStorage.setItem('mappings', JSON.stringify(mappings));
+        });
     </script>
 </body>
 </html>
