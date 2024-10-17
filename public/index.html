@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="btns"></div>
+    <div id="logs"></div>
+    <script>
+        let container = document.getElementById('logs');
+        let btns = document.getElementById('btns');
+
+        let outputData = {
+
+        };
+
+        fetch('/logs')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(element => {
+                    let a = document.createElement('button');
+                    a.innerHTML = element;
+                    a.addEventListener('click', event => {
+                        fetch(`/logs/${element}`)
+                            .then(response => response.text())
+                            .then(data => {
+                                //loop through each line
+                                data.split('\n').forEach(line => {
+                                    if(line.includes("query")){
+                                        let split = line.split(" ");
+                                        let dateTime = split[0] + " " + split[1] + " " + split[2];
+                                        let type = split[4];
+                                        let url = split[5];
+                                        let ip = split[7];
+                                        if(outputData[ip] == undefined){
+                                            outputData[ip] = [{"url": url, "type": type, "date": dateTime}];
+                                        } else {
+                                            outputData[ip].push({"url": url, "type": type, "date": dateTime});
+                                        }
+                                    }
+                                });
+                                
+                                // loop through key value pairs
+                                for(const [key, value] of Object.entries(outputData)){
+                                    let details = document.createElement('details');
+                                    let summary = document.createElement('summary');
+                                    summary.innerHTML = key;
+                                    details.appendChild(summary);
+                                    value.forEach(element => {
+                                        let p = document.createElement('p');
+                                        p.innerHTML = element.date + " " + element.type + " " + element.url;
+                                        details.appendChild(p);
+                                    });
+                                    container.appendChild(details);
+                                }
+                            });
+                    });
+                    btns.appendChild(a);
+                });
+            });
+    </script>
+</body>
+</html>
